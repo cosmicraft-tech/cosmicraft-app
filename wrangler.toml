@@ -1,0 +1,13 @@
+[site]
+bucket = "./dist"
+
+[build]
+command = "pnpm build"
+publish = "dist"
+
+[build.environment]
+NODE_VERSION = "18"
+
+[env.production]
+name = "cosmicraft-app"
+workers_dev = true 
