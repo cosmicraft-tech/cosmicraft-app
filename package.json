@@ -1,0 +1,23 @@
+{
+  "name": "cosmicraft-app",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@types/three": "^0.173.0",
+    "astro": "^5.3.1",
+    "gsap": "^3.12.7",
+    "three": "^0.173.0"
+  },
+  "engines": {
+    "node": ">=18.14.1",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.2"
+}

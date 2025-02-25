@@ -1,0 +1,54 @@
+---
+import AuroraScene from '../components/AuroraScene.astro';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Aurora Borealis</title>
+	</head>
+	<body>
+		<AuroraScene />
+		<main>
+			<h1>Cosmicraft Technologies</h1>
+			<p>We are a team of developers and designers who are passionate about creating future-proof solutions.</p>
+		</main>
+	</body>
+</html>
+
+<style>
+	body {
+		margin: 0;
+		padding: 0;
+		min-height: 100vh;
+		font-family: system-ui, sans-serif;
+		color: white;
+	}
+
+	main {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		min-height: 100vh;
+		text-align: center;
+		padding: 0 1rem;
+	}
+
+	h1 {
+		font-size: 3rem;
+		margin: 0;
+		text-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
+	}
+
+	p {
+		font-size: 1.5rem;
+		margin: 1rem 0;
+		text-shadow: 0 0 5px rgba(0, 255, 200, 0.5);
+	}
+</style>

@@ -1,0 +1,167 @@
+<div id="aurora-container" class="aurora-container">
+  <canvas id="aurora-canvas"></canvas>
+</div>
+
+<style>
+  .aurora-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(to bottom, #000000, #0a0a2a);
+    z-index: -1;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  import * as THREE from 'three';
+  import { gsap } from 'gsap';
+
+  class AuroraParticle {
+    position: THREE.Vector3;
+    velocity: THREE.Vector3;
+    originalY: number;
+
+    constructor(x: number, y: number, z: number) {
+      this.position = new THREE.Vector3(x, y, z);
+      this.velocity = new THREE.Vector3(
+        (Math.random() - 0.5) * 0.01,
+        (Math.random() - 0.5) * 0.01,
+        (Math.random() - 0.5) * 0.01
+      );
+      this.originalY = y;
+    }
+
+    update() {
+      this.position.add(this.velocity);
+      
+      // Wave motion
+      this.position.y = this.originalY + Math.sin(Date.now() * 0.001 + this.position.x * 0.5) * 2;
+      
+      // Boundary check
+      if (Math.abs(this.position.x) > 50) this.velocity.x *= -1;
+      if (Math.abs(this.position.z) > 50) this.velocity.z *= -1;
+    }
+  }
+
+  class AuroraScene {
+    private scene: THREE.Scene;
+    private camera: THREE.PerspectiveCamera;
+    private renderer: THREE.WebGLRenderer;
+    private particles: AuroraParticle[];
+    private geometry: THREE.BufferGeometry;
+    private material: THREE.PointsMaterial;
+    private points: THREE.Points;
+
+    constructor() {
+      this.scene = new THREE.Scene();
+      this.camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      
+      const canvas = document.querySelector('#aurora-canvas') as HTMLCanvasElement;
+      this.renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: true
+      });
+      
+      this.renderer.setSize(window.innerWidth * 1.5, window.innerHeight * 2);
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      this.camera.position.set(0, 0, 100);
+      this.camera.lookAt(0, 0, 0);
+
+      // Create particles
+      this.particles = [];
+      const particleCount = 5000;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const x = (Math.random() - 0.5) * 100;
+        const y = (Math.random() - 0.5) * 50 + 25;
+        const z = (Math.random() - 0.5) * 100;
+        this.particles.push(new AuroraParticle(x, y, z));
+      }
+
+      // Create geometry
+      this.geometry = new THREE.BufferGeometry();
+      this.updateParticlePositions();
+
+      // Create material
+      this.material = new THREE.PointsMaterial({
+        size: 0.2,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        vertexColors: true
+      });
+
+      // Create points
+      this.points = new THREE.Points(this.geometry, this.material);
+      this.scene.add(this.points);
+
+      // Handle window resize
+      window.addEventListener('resize', this.onWindowResize.bind(this));
+
+      // Start animation
+      this.animate();
+    }
+
+    private updateParticlePositions() {
+      const positions = new Float32Array(this.particles.length * 3);
+      const colors = new Float32Array(this.particles.length * 3);
+
+      this.particles.forEach((particle, i) => {
+        positions[i * 3] = particle.position.x;
+        positions[i * 3 + 1] = particle.position.y;
+        positions[i * 3 + 2] = particle.position.z;
+
+        // Create color gradient based on height
+        const color = new THREE.Color();
+        const hue = (particle.position.y + 25) / 50; // normalize height to 0-1
+        color.setHSL(hue * 0.2 + 0.5, 1, 0.5); // green to purple gradient
+
+        colors[i * 3] = color.r;
+        colors[i * 3 + 1] = color.g;
+        colors[i * 3 + 2] = color.b;
+      });
+
+      this.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      this.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    }
+
+    private onWindowResize() {
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    private animate() {
+      requestAnimationFrame(this.animate.bind(this));
+
+      // Update particles
+      this.particles.forEach(particle => particle.update());
+      this.updateParticlePositions();
+
+      // Rotate camera slowly
+      this.camera.position.x = Math.sin(Date.now() * 0.0001) * 100;
+      this.camera.position.z = Math.cos(Date.now() * 0.0001) * 100;
+      this.camera.lookAt(0, 0, 0);
+
+      this.renderer.render(this.scene, this.camera);
+    }
+  }
+
+  // Initialize the scene when the component mounts
+  document.addEventListener('DOMContentLoaded', () => {
+    new AuroraScene();
+  });
+</script> 
