@@ -7,12 +7,9 @@ on:
     branches: [main]
 
 jobs:
-  deploy:
+  ci:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      deployments: write
-    name: Deploy to Cloudflare Pages
+    name: Install, test & build
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,7 +17,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 26
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -42,10 +39,38 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install
+        run: make install
+
+      - name: Test with coverage
+        run: make test-coverage
 
       - name: Build
-        run: pnpm build
+        run: make build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 1
+
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to Cloudflare Pages
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
@@ -57,4 +82,4 @@ jobs:
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: main
           wranglerVersion: '3'
-          production: true 
+          production: true
