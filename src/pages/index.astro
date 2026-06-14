@@ -23,7 +23,7 @@ import AuroraScene from '../components/AuroraScene.astro';
 	<body>
 		<AuroraScene />
 
-		<button id="lang-toggle" class="lang-toggle" aria-label="Trocar idioma" data-i18n="toggle">PT</button>
+		<button id="lang-toggle" class="lang-toggle" aria-label="Switch language" data-i18n="toggle" data-i18n-aria="toggleAria">PT</button>
 
 		<main>
 			<svg class="logo" width="72" height="72" viewBox="0 0 100 100" aria-hidden="true">
@@ -177,6 +177,10 @@ import AuroraScene from '../components/AuroraScene.astro';
 		document.querySelectorAll('[data-i18n]').forEach((el) => {
 			const key = el.getAttribute('data-i18n');
 			if (key && dict[key]) el.textContent = dict[key];
+		});
+		document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+			const key = el.getAttribute('data-i18n-aria');
+			if (key && dict[key]) el.setAttribute('aria-label', dict[key]);
 		});
 		try { localStorage.setItem('cc-lang', lang); } catch (e) {}
 	}
